@@ -11,10 +11,10 @@ local BaseStoryTeller = require "storytellers/base"
 
 return Class(BaseStoryTeller, function(self, inst)
     self.name = 'Simple And Dumb story Teller'
-    local timeToNextEvent = 0
-    local currentEvents = {}
+    local timeToNextThreat = 0
+    local currentThreats = {}
 
-    local eventDelays =
+    local threatDelays =
     {
         rare = function()
             return TUNING.TOTAL_DAY_TIME * 6, math.random() * TUNING.TOTAL_DAY_TIME * 7
@@ -27,89 +27,140 @@ return Class(BaseStoryTeller, function(self, inst)
         end,
     }
 
-    local eventDelayFn = eventDelays.occasional
+    local threatDelayFn = threatDelays.occasional
 
 
     local function CalcComplexityLevel()
         local day = self:GetAveragePlayerAgeInDays()
         if day < 10 then
-            eventDelayFn = eventDelays.rare
+            threatDelayFn = threatDelays.rare
         elseif day < 25 then
-            eventDelayFn = eventDelays.rare
+            threatDelayFn = threatDelays.rare
         elseif day < 50 then
-            eventDelayFn = eventDelays.occasional
+            threatDelayFn = threatDelays.occasional
         elseif day < 100 then
-            eventDelayFn = eventDelays.occasional
+            threatDelayFn = threatDelays.occasional
         else
-            eventDelayFn = eventDelays.frequent
+            threatDelayFn = threatDelays.frequent
         end
     end
 
-    local function PlanNextEvent()
-        if timeToNextEvent > 0 then
+    local function PlanNextRegualThreat()
+        if timeToNextThreat > 0 then
             return
         end
-        local timetoattackbase, timetoattackvariance = eventDelayFn()
-        timeToNextEvent = timetoattackbase + timetoattackvariance
+        local timetoattackbase, timetoattackvariance = threatDelayFn()
+        timeToNextThreat = timetoattackbase + timetoattackvariance
     end
 
-    function self:Init()
-        PlanNextEvent()
-    end
 
-    function self:StartRandomEvent()
-        local eventId = "temperature"
-        local newEvent = GetGlobalEventById(eventId)
-        c_announce("STARTING EVENT " .. eventId)
-        currentEvents[eventId] = newEvent
-        currentEvents[eventId]:OnStart()
-    end
 
-    function self:GetCurrentEvents()
-        return currentEvents
-    end
-
-    function self:StopAllEvents()
-        for eventId, event in pairs(currentEvents) do
-            event:OnStop()
-            c_announce("STOPPING EVENT " .. eventId)
-            currentEvents[eventId] = nil
+    function self:SubscribeThreatsAtEvents()
+        for threatId, threat in pairs(GetEventsThreats()) do
+            threat:Subscribe(inst, self, threatId)
         end
     end
 
-    function self:UpdateCurrentEvents(dt)
-        --print("UpdateCurrentEvents " )
-        -- dumptable(currentEvents)
-        for eventId, event in pairs(currentEvents) do
-            if event ~= nil then
-                event:OnUpdate(dt)
-                if event:IsOut() then
-                    event:OnStop()
-                    c_announce("STOPPING EVENT " .. eventId)
-                    currentEvents[eventId] = nil
+    function self:StartRandomRegualarThreat()
+        --local eventId = "temperature"
+        --eventId = "solar_eclipse"
+        --local newEvent = GetRandomThreatById(eventId)
+        --c_announce("STARTING EVENT " .. eventId)
+        --currentEvents[eventId] = newEvent
+        --currentEvents[eventId]:OnStart()
+    end
+
+    function self:StartThreat(threat_id)
+        local threat = GetThreatById(threat_id)
+        c_announce("STARTING THREAT " .. threat_id)
+        currentThreats[threat_id] = threat
+        currentThreats[threat_id]:OnStart()
+    end
+
+    function self:GetCurrentThreats()
+        return currentThreats
+    end
+
+    function self:TryStartThreat(threat_id, force)
+        force = force or false
+        local threat = GetThreatById(threat_id)
+        -- Chain of if
+        -- Made specifically for the simplification
+        if force then
+            self:StartThreat(threat_id)
+        else
+            if threat:CheckConditions() then
+                if threat:CheckChance() then
+                    if not self:CurrentThreatsHasTag(threat:GetTag()) then
+                        self:StartThreat(threat_id)
+                    end
                 end
             end
-            -- print("try update " .. eventId)
+        end
+    end
+
+    function self:OnSubscription(threat_id)
+        --self:StartThreat(threat_id)
+        self:TryStartThreat(threat_id)
+    end
+
+    function self:CurrentThreatsHasTag(tag)
+        local res = false;
+        -- TODO - see lua return in foreach
+        for threatId, threat in pairs(self:GetCurrentThreats()) do
+            if threat:HasTag(tag) then res = true end
+        end
+        return res
+    end
+
+    function self:StopThreat(threatId)
+        c_announce("STOPPING THREAT " .. threatId)
+        local threat = GetThreatById(threatId)
+        if threat ~= nil then
+            threat:OnStop()
+            currentThreats[threatId] = nil
+        end
+
+    end
+
+    function self:StopAllThreats()
+        for threatId, threat in pairs(self:GetCurrentThreats()) do
+            self:StopThreat(threatId)
+        end
+    end
+
+    function self:UpdateCurrentThreats(dt)
+        for threatId, threat in pairs(self:GetCurrentThreats()) do
+            if threat ~= nil then
+                threat:OnUpdate(dt)
+                if threat:IsOut() then
+                    self:StopThreat(threatId)
+                end
+            end
         end
     end
 
     function self:OnUpdate(dt)
         --print(timeToNextEvent)
         -- print("TEST" .. tostring(dt))
-        timeToNextEvent = timeToNextEvent - dt
-        if timeToNextEvent < 0 then
-
-            self:StartRandomEvent();
-            PlanNextEvent()
+        timeToNextThreat = timeToNextThreat - dt
+        if timeToNextThreat < 0 then
+            self:StartRandomRegualarThreat();
+            PlanNextRegualThreat()
         end
 
-        self:UpdateCurrentEvents(dt)
+        self:UpdateCurrentThreats(dt)
     end
 
-    function self:DumpCurrentEvents()
-        for eventId, event in pairs(currentEvents) do
-            if event ~= nil then
-                event:GetDebugString()
+    function self:Init()
+        self:SubscribeThreatsAtEvents()
+        PlanNextRegualThreat()
+    end
+
+    function self:DumpCurrentThreats()
+        for threatId, threat in pairs(self:GetCurrentThreats()) do
+            if threat ~= nil then
+                threat:GetDebugString()
             end
         end
     end

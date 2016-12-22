@@ -6,11 +6,6 @@
 -- To change this template use File | Settings | File Templates.
 --
 
-function c_test_test(msg)
-    c_announce(msg)
-end
-
-
 function c_ge_debug()
     print(TheWorld.components.global_events:GetDebugString())
 end
@@ -25,7 +20,11 @@ function c_ge_st()
 end
 
 function c_ge_dc()
-    return c_ge_st():DumpCurrentEvents()
+    return c_ge_st():DumpCurrentThreats()
+end
+
+function c_ge_se(threat_id)
+    return c_ge_st():StartThreat(threat_id)
 end
 
 function c_ge_r()
@@ -33,7 +32,7 @@ function c_ge_r()
 end
 
 function c_ge_s()
-    c_ge_st():StopAllEvents()
+    c_ge_st():StopAllThreats()
 end
 
 function c_ge_t()
@@ -45,6 +44,6 @@ function c_ge_t()
 end
 
 function c_ge_de()
-    dumptable(c_ge_o():GetStoryTeller():GetCurrentEvents());
+    dumptable(c_ge_st():GetCurrentThreats());
 end
 

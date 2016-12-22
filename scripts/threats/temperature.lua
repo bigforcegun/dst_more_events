@@ -7,11 +7,10 @@
 --
 
 GLOBAL.require("utils/utils_events")
-local BaseGlobalEvent = GLOBAL.require("events/base")
+local BaseThreat = GLOBAL.require("threats/base")
 
-TemperatureEvent = Class(BaseGlobalEvent, function(self, data)
-    BaseGlobalEvent._ctor(self, "TemperatureEvent")
-    print("TemperatureEventINIT")
+TemperatureThreat = Class(BaseThreat, function(self, data)
+    BaseThreat._ctor(self, "TemperatureThreat")
     self.name = "Weather cold snap"
     self.defs = {
         sign = 0,
@@ -80,7 +79,7 @@ TemperatureEvent = Class(BaseGlobalEvent, function(self, data)
     end
 
     local function CalculateDefinitions()
-        self:CalculateEventDuration()
+        self:CalculateDuration()
         startTemperature = GetWorldTemperature()
         self.defs.sign = RandomizeTemperatureSign()
         self.defs.minRange, self.defs.maxRange = CalculateSeasonRanges()
@@ -129,17 +128,15 @@ TemperatureEvent = Class(BaseGlobalEvent, function(self, data)
     end
 
     function self:CheckConditions()
+        return true
     end
 
     function self:OnStop()
-        -- change temp
         ResetTemperature()
     end
-
-
 end)
 
-GLOBAL.AddGlobalEventByClass('temperature', TemperatureEvent({}))
+GLOBAL.AddThreat('temperature', TemperatureThreat({}))
 
 --[[
 AddGlobalEventByDef("temperature_low_test", {

@@ -9,6 +9,7 @@
 function InitGlobalEvents()
     AddPrefabPostInit("world", function(inst)
         inst:AddComponent("global_events")
+        ExtendWorldState(inst)
     end)
 end
 

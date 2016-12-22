@@ -28,7 +28,7 @@ return Class(function(self, inst)
 
     function self:SetStoryTeller(storyTellerName)
         local storyTellerClass = require('storytellers/' .. storyTellerName)
-        currentStoryTeller = storyTellerClass("test")
+        currentStoryTeller = storyTellerClass(self.inst)
     end
 
     function self:GetStoryTeller()
@@ -74,10 +74,10 @@ return Class(function(self, inst)
         currentStoryTeller:OnPlayerLeft(src, player)
     end
 
+
     function self:Init()
         self:SetStoryTeller('simple')
         self.inst:StartUpdatingComponent(self)
-
         inst:ListenForEvent("ms_playerjoined", OnPlayerJoined, TheWorld)
         inst:ListenForEvent("ms_playerleft", OnPlayerLeft, TheWorld)
         currentStoryTeller:Init();

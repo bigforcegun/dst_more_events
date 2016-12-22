@@ -1,32 +1,47 @@
 --
 -- Created by IntelliJ IDEA.
 -- User: bigfo
--- Date: 09.12.2016
--- Time: 23:00
--- To change this template use File | Settings | File Templates.
 --
 
-local baseGlobalEvent = require "events/base"
-local globalEvents = {}
+-- temporally global register of random and byevents threats
 
+-- local baseGlobalEvent = require "threats/base"
+_ = require 'lib/underscore'
 
-function AddGlobalEventByClass(id, classDef)
+local threats = {}
+
+function AddThreat(id, classDef)
     --table.insert(globalEvents[type], classDef)
-    globalEvents[id] = classDef
+    threats[id] = classDef
 end
 
-function GetGlobalEvents()
-    return globalEvents
+function GetAllThreats()
+    return threats
 end
 
+function GetRegularThreats()
+    return _.select(threats, function(t) return t:IsRegular() == true end)
+end
+-- TODO cache results
+function GetEventsThreats()
+    local _threats = {}
+    for threatId, threat in pairs(GetAllThreats()) do
+        if threat:IsEvent() then
+            _threats[threatId] = threat
+        end
+    end
 
-function AddGlobalEventByDef(id, data)
+    return _threats
+    --return _.select(threats, function(t) return t:IsEvent() == true end)
+end
+
+--function AddGlobalEventByDef(id, data)
     --assert(GetDataForLevelID(data.id) == nil, string.format("Tried adding a level with id %s, but one already exists!", data.id))
-    local newEvent = baseGlobalEvent(data)
-    AddGlobalEventByClass(id, newEvent)
+   -- local newEvent = baseGlobalEvent(data)
+    --AddGlobalEventByClass(id, newEvent)
     --table.insert(globalEvents[type], baseGlobalEvent(data))
-end
+--end
 
-function GetGlobalEventById(id)
-    return globalEvents[id]
+function GetThreatById(id)
+    return threats[id]
 end
