@@ -1,11 +1,3 @@
---
--- Created by IntelliJ IDEA.
--- User: bigfo
--- Date: 13.12.2016
--- Time: 17:09
--- To change this template use File | Settings | File Templates.
---
-
 local _activeplayers = {}
 
 local BaseStoryTeller = Class(function(self, name)

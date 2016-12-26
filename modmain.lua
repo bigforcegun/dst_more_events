@@ -16,6 +16,7 @@ end
 
 modimport("init/init_global_events")
 modimport("init/init_worldstate_extender")
+modimport("init/init_i18n")
 -- modimport("scripts/utils/utils_events")
 --modimport("utils/utils_common")
 --modimport("utils/utils_main")
@@ -29,6 +30,7 @@ modimport("scripts/threats/temperature")
 modimport("scripts/threats/cycle_solstice")
 modimport("scripts/threats/cycle_solar_eclipse")
 modimport("scripts/threats/cycle_darkness")
+modimport("scripts/threats/player_sunrise")
 
 --modimport("scripts/components/threats")
 

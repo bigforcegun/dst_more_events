@@ -1,11 +1,3 @@
---
--- Created by IntelliJ IDEA.
--- User: bigfo
--- Date: 19.12.2016
--- Time: 16:15
--- To change this template use File | Settings | File Templates.
---
-
 GLOBAL.require("utils/utils_events")
 local BaseThreat = GLOBAL.require("threats/base")
 

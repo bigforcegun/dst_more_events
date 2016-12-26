@@ -1,11 +1,3 @@
---
--- Created by IntelliJ IDEA.
--- User: bigfo
--- Date: 09.12.2016
--- Time: 22:54
--- To change this template use File | Settings | File Templates.
---
-
 local BaseThreat = Class(function(self, data)
     self.name = data.name
     self.segsMin = data.segsMin
@@ -49,12 +41,28 @@ function BaseThreat:OnUpdate(dt)
     self:UpdateTime(dt)
 end
 
+
+function BaseThreat:CalculateDefinitions()
+    self.defs = {}
+end
+
 function BaseThreat:CheckConditions()
     return true
 end
 
 function BaseThreat:GetChance()
     return self.chance
+end
+
+function BaseThreat:IsPositive()
+    if self.defs and self.defs.isPositive ~= nil then
+        return self.defs.isPositive
+    end
+    return false
+end
+
+function BaseThreat:IsNegative()
+    return not self:IsPositive()
 end
 
 function BaseThreat:CheckChance()
