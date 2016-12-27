@@ -1,10 +1,3 @@
---
--- Created by IntelliJ IDEA.
--- User: bigfo
--- Date: 13.12.2016
--- Time: 17:01
--- To change this template use File | Settings | File Templates.
---
 require("utils/utils_events")
 
 local BaseStoryTeller = require "storytellers/base"
@@ -72,9 +65,14 @@ return Class(BaseStoryTeller, function(self, inst)
 
     function self:StartThreat(threat_id)
         local threat = GetThreatById(threat_id)
-        c_announce("STARTING THREAT " .. threat_id)
-        currentThreats[threat_id] = threat
-        currentThreats[threat_id]:OnStart()
+        if threat then
+            c_announce("STARTING THREAT " .. threat_id)
+            currentThreats[threat_id] = threat
+            currentThreats[threat_id]:Start()
+            currentThreats[threat_id]:GetDebugString()
+        else
+            c_announce("FAIL TO START THREAT " .. threat_id)
+        end
     end
 
     function self:GetCurrentThreats()
@@ -113,19 +111,19 @@ return Class(BaseStoryTeller, function(self, inst)
         return res
     end
 
-    function self:StopThreat(threatId)
+    function self:StopThreat(threatId, force)
+        force = force or false
         c_announce("STOPPING THREAT " .. threatId)
         local threat = GetThreatById(threatId)
         if threat ~= nil then
-            threat:OnStop()
+            threat:Stop(force)
             currentThreats[threatId] = nil
         end
-
     end
 
     function self:StopAllThreats()
         for threatId, threat in pairs(self:GetCurrentThreats()) do
-            self:StopThreat(threatId)
+            self:StopThreat(threatId, true)
         end
     end
 

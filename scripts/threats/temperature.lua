@@ -1,11 +1,3 @@
---
--- Created by IntelliJ IDEA.
--- User: bigfo
--- Date: 09.12.2016
--- Time: 23:29
--- To change this template use File | Settings | File Templates.
---
-
 GLOBAL.require("utils/utils_events")
 local BaseThreat = GLOBAL.require("threats/base")
 
@@ -78,16 +70,6 @@ TemperatureThreat = Class(BaseThreat, function(self, data)
         return temp
     end
 
-    local function CalculateDefinitions()
-        self:CalculateDuration()
-        startTemperature = GetWorldTemperature()
-        self.defs.sign = RandomizeTemperatureSign()
-        self.defs.minRange, self.defs.maxRange = CalculateSeasonRanges()
-        self.defs.toTemperature = CalculateToTemperature()
-    end
-
-
-
     local function SetTemperature(temperature)
         if GetWorldTemperature ~= temperature then
             GLOBAL.TheWorld.net.components.worldtemperature:SetTemperatureMod(0, temperature)
@@ -96,11 +78,6 @@ TemperatureThreat = Class(BaseThreat, function(self, data)
 
     local function ResetTemperature()
         GLOBAL.TheWorld.net.components.worldtemperature:SetTemperatureMod(1, 0)
-    end
-
-    function self:OnStart()
-        -- change temp
-        CalculateDefinitions()
     end
 
     local function CalculateStageTemperature()
@@ -116,9 +93,20 @@ TemperatureThreat = Class(BaseThreat, function(self, data)
         else
             stageTemperature = self.defs.toTemperature
         end
-        local phaseTemperature = 0 --CalculatePhaseTemperature()
+        local phaseTemperature = CalculatePhaseTemperature()
         stageTemperature = startTemperature + phaseTemperature + stageTemperature
         return stageTemperature
+    end
+
+    function self:CalculateDefinitions()
+        startTemperature = GetWorldTemperature()
+        self.defs.sign = RandomizeTemperatureSign()
+        self.defs.minRange, self.defs.maxRange = CalculateSeasonRanges()
+        self.defs.toTemperature = CalculateToTemperature()
+    end
+
+    function self:OnStart()
+        -- change temp starting automatically
     end
 
     function self:OnUpdate(dt)

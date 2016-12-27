@@ -31,6 +31,7 @@ modimport("scripts/threats/cycle_solstice")
 modimport("scripts/threats/cycle_solar_eclipse")
 modimport("scripts/threats/cycle_darkness")
 modimport("scripts/threats/player_sunrise")
+modimport("scripts/threats/player_sunset")
 
 --modimport("scripts/components/threats")
 

@@ -18,14 +18,16 @@ SolsticeThreat = Class(BaseThreat, function(self, data)
     self.segsMax = NUM_SEGS
     self.isRegular = false
 
-    function self:Subscribe(world, storyteller, event_id)
-        world:ListenForEvent("cycleschanged", function()
-            storyteller:OnSubscription(event_id)
-        end, GLOBAL.TheWorld)
+    function self:Subscribe(world, storyteller, id)
+        world:WatchWorldState("cycles", function()
+            storyteller:OnSubscription(id)
+        end)
+        --[[ world:ListenForEvent("cycleschanged", function()
+             storyteller:OnSubscription(event_id)
+         end, GLOBAL.TheWorld)]]
     end
 
     function self:OnStart()
-        self:CalculateDuration()
         -- TODO - event start BEFORE NEXT SEASON SEGS CALCULATION
         -- then OnStop tooggles bad segs
         local nightSegs = GLOBAL.TheWorld.state.phasesegs.night
@@ -37,7 +39,9 @@ SolsticeThreat = Class(BaseThreat, function(self, data)
         -- TODO change rehresh clocksets
         -- This event refreshes clocksegs TO default value, not to season value. It's bad
         -- seasons.lua in DST core doen't allow to get clocksegs for season, only allow to change them
-        GLOBAL.TheWorld:PushEvent("ms_setclocksegs")
+        if force then
+            GLOBAL.TheWorld:PushEvent("ms_setclocksegs")
+        end
     end
 end)
 

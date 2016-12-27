@@ -1,8 +1,8 @@
 name = "[DST] More Global Events"
-description = "Add too many new events in game"
+description = "Add too many new events and threats in game"
 author = "BigForceGun"
-version = "0.0.1"
-version_compatible = "0.0.0"
+version = "0.1.0"
+version_compatible = "0.1.0"
 
 forumthread = ""
 

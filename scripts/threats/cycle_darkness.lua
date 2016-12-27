@@ -18,19 +18,24 @@ DarknessThreat = Class(BaseThreat, function(self, data)
     self.segsMax = NUM_SEGS
     self.isRegular = false
 
-    function self:Subscribe(world, storyteller, event_id)
-        world:ListenForEvent("cycleschanged", function()
-            storyteller:OnSubscription(event_id)
-        end, GLOBAL.TheWorld)
+    function self:Subscribe(world, storyteller, id)
+        world:WatchWorldState("cycles", function()
+            storyteller:OnSubscription(id)
+        end)
+
+        --[[world:ListenForEvent("cycleschanged", function()
+            storyteller:OnSubscription(id)
+        end, GLOBAL.TheWorld)]]
     end
 
     function self:OnStart()
-        self:CalculateDuration()
         GLOBAL.TheWorld:PushEvent("ms_setclocksegs", { day = 0, dusk = 0, night = NUM_SEGS })
     end
 
-    function self.OnStop()
-        GLOBAL.TheWorld:PushEvent("ms_setclocksegs")
+    function self.OnStop(force)
+        if force then
+            GLOBAL.TheWorld:PushEvent("ms_setclocksegs")
+        end
     end
 end)
 

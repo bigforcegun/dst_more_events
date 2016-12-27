@@ -13,14 +13,36 @@ end)
 
 function BaseThreat:CalculateDuration()
     local threatSegs = math.random(self.segsMin, self.segsMax)
-
     self.timeTotal = threatSegs * TUNING.SEG_TIME
     self.timeToOut = self.timeTotal
 end
 
-function BaseThreat:OnStart()
-    self:CalculateDuration()
+function BaseThreat:CalculateDefinitions()
+   -- self.defs = {}
 end
+
+function BaseThreat:OnStart()
+    -- Stub for override
+end
+
+function BaseThreat:OnStop()
+    -- Stub for override
+end
+
+---
+--
+function BaseThreat:Start()
+    self:CalculateDuration()
+    self:CalculateDefinitions()
+    return self:OnStart()
+end
+
+function BaseThreat:Stop(force)
+    force = force or false
+    return self:OnStop(force)
+end
+
+
 
 function BaseThreat:GetCompletePercentage()
     return 100 - math.floor((self.timeToOut / self.timeTotal) * 100)
@@ -30,8 +52,6 @@ function BaseThreat:GetStagePercentage()
 end
 
 
-function BaseThreat:OnStop()
-end
 
 function BaseThreat:UpdateTime(dt)
     self.timeToOut = self.timeToOut - dt
@@ -41,10 +61,6 @@ function BaseThreat:OnUpdate(dt)
     self:UpdateTime(dt)
 end
 
-
-function BaseThreat:CalculateDefinitions()
-    self.defs = {}
-end
 
 function BaseThreat:CheckConditions()
     return true

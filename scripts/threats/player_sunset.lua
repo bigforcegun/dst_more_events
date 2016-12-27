@@ -1,35 +1,34 @@
---'sunrise'
-
 GLOBAL.require("utils/utils_events")
 local BaseThreat = GLOBAL.require("threats/base")
 
-PlayerSunriseThreat = Class(BaseThreat, function(self, data)
+PlayerSunsetThreat = Class(BaseThreat, function(self, data)
     BaseThreat._ctor(self, "PlayerSunriseThreat")
-    self.tag = 'player_sunrise'
+    self.tag = 'player_sunset'
     local NUM_SEGS = 0
-    local EAST_DIRECTION = -135
-    local EAST_DIRECTION_ANGLE = 40
+    local WEST_DIRECTION = 45
+    local WEST_DIRECTION_ANGLE = 40
     self.chance = 1
     self.segsMin = NUM_SEGS
     self.segsMax = NUM_SEGS
     self.isRegular = false
-
-    local function CalculateDefinitions()
-    end
+    self.defs = {
+        isPositive = true,
+        sanityDrain = 0
+    }
 
     function self:Subscribe(world, storyteller, id)
-        world:WatchWorldState("isday", function()
+        world:WatchWorldState("isdusk", function()
             storyteller:OnSubscription(id)
         end)
         --[[
         world:ListenForEvent("phasechanged", function()
-             storyteller:OnSubscription(event_id)
-         end, GLOBAL.TheWorld)
+             storyteller:OnSubscription(id)
+        end, GLOBAL.TheWorld)
          ]]
     end
 
     function self:CheckConditions()
-        return GLOBAL.TheWorld.state.isday and GLOBAL.TheWorld.state.phasesegs.day > 0
+        return GLOBAL.TheWorld.state.isdusk and GLOBAL.TheWorld.state.phasesegs.dusk > 0
     end
 
     function self:CalculateDefinitions()
@@ -41,23 +40,21 @@ PlayerSunriseThreat = Class(BaseThreat, function(self, data)
         end
     end
 
-    local function IsPlayerRotationOnSunrise(player)
+    local function IsPlayerRotationOnSunset(player)
         local rotation = player:GetRotation();
-        if (EAST_DIRECTION - EAST_DIRECTION_ANGLE) < rotation and rotation < (EAST_DIRECTION + EAST_DIRECTION_ANGLE) then
+        if (WEST_DIRECTION - WEST_DIRECTION_ANGLE) < rotation and rotation < (WEST_DIRECTION + WEST_DIRECTION_ANGLE) then
             return true
         end
         return false
-        --return (EAST_DIRECTION - EAST_DIRECTION_ANGLE) < rotation < (EAST_DIRECTION + EAST_DIRECTION_ANGLE)
     end
 
     function self:OnStart()
-        --TheCamera:GetHeading()
         --if true then
         for key, player in ipairs(GLOBAL.AllPlayers) do
-            if IsPlayerRotationOnSunrise(player) then
-                local talk = GLOBAL.T('PLAYER_MEETS_UGLY_SUNRISE')
+            if IsPlayerRotationOnSunset(player) then
+                local talk = GLOBAL.T('PLAYER_MEETS_UGLY_SUNSET')
                 if self:IsPositive() then
-                    talk = GLOBAL.T('PLAYER_MEETS_BEAUTIFUL_SUNRISE')
+                    talk = GLOBAL.T('PLAYER_MEETS_BEAUTIFUL_SUNSET')
                 end
                 player.components.sanity:DoDelta(self.defs.sanityDrain)
                 player.components.talker:Say(talk)
@@ -70,4 +67,4 @@ PlayerSunriseThreat = Class(BaseThreat, function(self, data)
     end
 end)
 
-GLOBAL.AddThreat('player_sunrise', PlayerSunriseThreat({}))
+GLOBAL.AddThreat('player_sunset', PlayerSunsetThreat({}))
